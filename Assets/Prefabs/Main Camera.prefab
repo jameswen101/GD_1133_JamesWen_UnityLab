@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 6036519888140841455}
   - component: {fileID: 7127814738358484627}
   - component: {fileID: 267283080946414939}
-  - component: {fileID: -4573992702516030269}
   - component: {fileID: 5681355914931146627}
   m_Layer: 0
   m_Name: Main Camera
@@ -28,7 +27,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7408159348314812571}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.48251152, y: 0, z: -6.1479445}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -94,33 +93,6 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7408159348314812571}
   m_Enabled: 1
---- !u!54 &-4573992702516030269
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7408159348314812571}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!114 &5681355914931146627
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128,9 +100,9 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7408159348314812571}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bcfa8ab06190a5244b56efd32296ef8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  userCapsule: {fileID: 4225968744824323474, guid: 8c82245c5e1683843bde6990798b98e4, type: 3}
+  userCapsule: {fileID: 0}

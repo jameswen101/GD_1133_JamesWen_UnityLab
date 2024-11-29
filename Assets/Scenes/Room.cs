@@ -1,151 +1,123 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 using Random = System.Random;
 
 public class Room: MonoBehaviour
 {
 	public bool hasItem, hasMeat, hasEnemy = false;
-    MapMgr mapMgr;
+    readonly MapMgr MapMgr;
 	public int row, col;
-    [SerializeField] private GameObject NorthDoorway, EastDoorway, SouthDoorway, WestDoorway;
+    [SerializeField] 
+    private GameObject NorthDoorway, EastDoorway, SouthDoorway, WestDoorway;
+    [HideInInspector]
     public Room north, west, south, east;
+    public GameObject NWall, WWall, SWall, EWall, Floor;
+    [HideInInspector]
     public int roomNum;
     internal User user;
-    [SerializeField]
-    List<String> Directions = new List<String>();
     TreasureRoom tRoom;
     DiningRoom dRoom;
     CombatRoom cRoom;
-    public Room(int row, int col)
+    public GameObject EACanvas;
+    public GameObject EAPanel;
+    public GameObject EAText;
+    public GameObject HealthText;
+    [HideInInspector]
+    public TMP_Text TmpTextComponent1;
+    [HideInInspector]
+    public TMP_Text TmpTextComponent2;
+    public TMP_FontAsset DisplayFont;
+
+    private void Start()
 	{
-		this.row = row;
-		this.col = col;
         roomNum = row * 5 + col;
-	}
+        TmpTextComponent1 = EAText.GetComponent<TMP_Text>();
+        TmpTextComponent2 = HealthText.GetComponent<TMP_Text>();
+        EAText.SetActive(false);
+    }
 
-    public void OnRoomSearched()
+    public void OnRoomSearched() //function activated when a key is pressed
     {
-            for (int i = 0; i < mapMgr.roomsInMap.Count; i++)
+            for (int i = 0; i < MapMgr.roomsInMap.Count; i++)
             {
-                if (row == user.row && col == user.col)
+                if (row == user.row && col == user.col) //change to collider
                 {
-                    //Debug.Log($"{user.name} is in room at [{row}, {col}]");
 
-                    if (mapMgr.roomsInMap[i].hasItem)
+                    if (MapMgr.roomsInMap[i].hasItem)
                     {
-                        Debug.Log("This is a treasure room.");
-                        //tRoom.giveItem();
+                        
+                        TmpTextComponent2.text = $"<color=red>Current room coordinates: ({row}, {col}) \nTreasure room</color>";
+                        ShowHealthText();
+                        Invoke("HideHealthText", 5f);
+                        tRoom.GiveItem();
                     }
-                    else if (mapMgr.roomsInMap[i].hasMeat)
+                    else if (MapMgr.roomsInMap[i].hasMeat)
                     {
-                        Debug.Log("This is a dining room.");
-                        //dRoom.giveMeat();
+                        TmpTextComponent2.text = $"<color=red>Current room coordinates: ({row}, {col}) \nDining room</color>";
+                        ShowHealthText();
+                        Invoke("HideHealthText", 5f);
+                        dRoom.GiveMeat();
                     }
-                    else if (mapMgr.roomsInMap[i].hasEnemy)
+                    else if (MapMgr.roomsInMap[i].hasEnemy)
                     {
-                        Debug.Log("This is a combat room.");
-                        //cRoom.showEnemy();
+                        TmpTextComponent2.text = $"<color=red>Current room coordinates: ({row}, {col}) \nCombat room</color>";
+                        ShowHealthText();
+                        Invoke("HideHealthText", 5f);
+                        cRoom.ShowEnemy();
                     }
                     else
                     {
-                        Debug.Log("This room is safe.");
+                        TmpTextComponent2.text = $"<color=red>Current room coordinates: ({row}, {col}) \nThis room is safe.</color>";
+                        ShowHealthText();
+                        Invoke("HideHealthText", 5f);
                     }
                 }
             }
     }
 
-    public void OnRoomExit() 
+    public void OnRoomExit() //activated via collider
     {
-        /*
-        String directionChoice = " ";
-        bool validDirection = false; //initialize them here as the value restarts every time the function is called
-        
-        do
-        {
-            Debug.Log("Which direction would you like to go for your next room?");
-            if (row > 0)
-            {
-                north = mapMgr.roomsInMap[roomNum - 5];
-                Debug.Log("North");
-                Directions.Add("North");
-            }
-            if (col > 0)
-            {
-                west = mapMgr.roomsInMap[roomNum - 1];
-                Debug.Log("West");
-                Directions.Add("West");
-            }
-            if (row < 4)
-            {
-                south = mapMgr.roomsInMap[roomNum + 5];
-                Debug.Log("South");
-                Directions.Add("South");
-            }
-            if (col < 4)
-            {
-                east = mapMgr.roomsInMap[roomNum + 1];
-                Debug.Log("East");
-                Directions.Add("East");
-            }
-            directionChoice = Console.ReadLine();
-            foreach (String direction in Directions)
-            {
-                if (directionChoice.ToUpper() == direction.ToUpper())
-                {
-                    validDirection = true;
-                } //if code ends
-            } //foreach loop code ends
-            if (!validDirection)
-            {
-                Debug.Log("Please enter a valid direction.");
-            } //if code ends
-        } while (!validDirection); //do-while code ends
-
-        switch (directionChoice.ToUpper()) //if input is valid
-        {
-            case "WEST":
-                Debug.Log("Moving west...");
-                user.col -= 1;
-                Vector2 wMove = new Vector2(0, -1);
-                user.position += wMove;
-                break;
-
-            case "NORTH":
-                Debug.Log("Moving north...");
-                user.row -= 1;
-                Vector2 nMove = new Vector2(-1, 0);
-                user.position += nMove;
-                break;
-
-            case "SOUTH":
-                Debug.Log("Moving south...");
-                user.row += 1;
-                Vector2 sMove = new Vector2(1, 0);
-                user.position += sMove;
-                break;
-
-            case "EAST":
-                Debug.Log("Moving east...");
-                user.col += 1;
-                Vector2 eMove = new Vector2(0, 1);
-                user.position += eMove;
-                break;
-        } //switch code ends
-    */
-        Debug.Log("You are about to exit the current room.");
+        ShowHealthText();
+        TmpTextComponent2.text = $"<color=red>You are about to exit the current room.</color>";
+        Invoke("HideHealthText", 3f);
     }
 
-    public void OnRoomEntered()
+    public void OnRoomEntered() //why still not working?
     {
-        Debug.Log($"You have just entered this new room. \nLet's search this room for items and enemies!");
-        showSearch();
+        ShowHealthText();
+        TmpTextComponent2.text = $"<color=red>You have just entered this new room. \nLet's search this room for items and enemies!</color>";
+        Invoke("HideHealthText", 3f);
     }
 
-    void showSearch()
+    public void ShowEAText()
     {
-        Debug.Log("                                                                                                    \r\n                                                                                                    \r\n                                                                                                    \r\n                                                                                                    \r\n                                                                                                    \r\n                                  ....................                                              \r\n                               ....-*@@@@@@@@@@@@@@@@%=:...                                         \r\n                            ..:+%@@@@@@@@@@@@@@@@@@@@@@@@@#-.....                                   \r\n                          .-*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%+:.......                             \r\n                       ..=%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#:.....                             \r\n                     ..+@@@@@@@@@@@@@@@#=:.......-+%@@@@@@@@@@@@@@%:...                             \r\n                   ..=%@@@@@@@@@@@#=..................:+%@@@@@@@@@@@#:..                            \r\n                  ..*@@@@@@@@@@#:.........................=#@@@@@@@@@@=......                       \r\n                ..:%@@@@@@@@@+:.......:+++:. ...............-%@@@@@@@@@*.....                       \r\n               ..-%@@@@@@@@#.......=%@@@@@@. ............ ....-@@@@@@@@@#.....                      \r\n               .-%@@@@@@@@=......#@@@@@@@@*. ............  .....*@@@@@@@@*...                       \r\n               :#@@@@@@@%-.....+@@@@@@@@%=..                  ...*@@@@@@@@=..                       \r\n              .+@@@@@@@@-.....#@@@@@@@%=....                  ....*@@@@@@@@:.                       \r\n             ..@@@@@@@@=.....%@@@@@@*:.....                   .....%@@@@@@@*.                       \r\n             .+@@@@@@@#.....#@@@@@#:.......                   .....:@@@@@@@@.                       \r\n             .@@@@@@@@=.  .-@@@@@=.........                   ......#@@@@@@@-..                     \r\n             :@@@@@@@@-....#@@@@-..........                   ......+@@@@@@@#..                     \r\n             :@@@@@@@%-....#@@@+...........                   ......=@@@@@@@#.                      \r\n             :@@@@@@@%-....#@@*......                         ......=@@@@@@@#..                     \r\n             .@@@@@@@@-....#@%=......                         ......*@@@@@@@+..                     \r\n             .#@@@@@@@+....*@#.......                         .....:%@@@@@@@:.                      \r\n             .-@@@@@@@@:...:#:.......                         .....=@@@@@@@@.                       \r\n             ..%@@@@@@@%.......                               ....:@@@@@@@@=.                       \r\n               -@@@@@@@@*......                               ...:@@@@@@@@#:.                       \r\n               .+@@@@@@@@*....                                ..-%@@@@@@@%-..                       \r\n               ..*@@@@@@@@#:..                               ..=%@@@@@@@@=...                       \r\n                ..#@@@@@@@@@*...                           ..:%@@@@@@@@@-....                       \r\n                ...+@@@@@@@@@%+.......                  ...:#@@@@@@@@@@@%-..........                \r\n                ....-%@@@@@@@@@@#=......................:+%@@@@@@@@@@@@@@@#:........                \r\n                ......+@@@@@@@@@@@@%*=..............:+*%@@@@@@@@@@@@@@@@@@@@*.......                \r\n                ........+@@@@@@@@@@@@@@@%%%####%%%@@@@@@@@@@@@@@@@@@@@@@@@@@@@+....                 \r\n                ..........=%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-...                \r\n                .............*%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#-:#@@@@@@@@@@@@@@@@@@-.......          \r\n                       .........=+%@@@@@@@@@@@@@@@@@@@@@#+:.....-%@@@@@@@@@@@@@@@@@#-.....          \r\n                       ..............:-=*#%@@@@@%#+--:............=@@@@@@@@@@@@@@@@@@#.....         \r\n                       ..................................  .........+@@@@@@@@@@@@@@@@@@*..          \r\n                                                       ..     ........*@@@@@@@@@@@@@@@@@*:          \r\n                                                              .........:*@@@@@@@@@@@@@@@@-          \r\n                                                              ...........-#@@@@@@@@@@@@@@-          \r\n                                                              .............-@@@@@@@@@@@@*:          \r\n                                                                     ........+%@@@@@@@@+..          \r\n                                                                     ..........-+***+-....          \r\n                                                                     .....................          \r\n                                                                     .....................          \r\n                                                                                                    \r\n                                                                                                    ");
-        //shows magnifying glass
+        EACanvas.SetActive(true);
+        EAPanel.SetActive(true);
+        EAText.SetActive(true);
+    }
+
+    public void HideEAText()
+    {
+        EAText.SetActive(false);
+        EAPanel.SetActive(false);
+        EACanvas.SetActive(false);
+    }
+
+    public void ShowHealthText()
+    {
+        EACanvas.SetActive(true);
+        EAPanel.SetActive(true);
+        HealthText.SetActive(true);
+    }
+
+    public void HideHealthText()
+    {
+        HealthText.SetActive(false);
+        EAPanel.SetActive(false);
+        EACanvas.SetActive(false);
     }
 
 }

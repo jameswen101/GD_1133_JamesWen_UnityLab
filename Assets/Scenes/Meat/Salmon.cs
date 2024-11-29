@@ -1,13 +1,11 @@
 ﻿using System;
 
-public class Salmon : Meat
+public class Cod : Meat
 {
-    public Salmon(String meatName, int healthBoost) : base(meatName, healthBoost)
+    protected override void Awake()
     {
-        this.meatName = meatName;
-        this.healthBoost = healthBoost;
-        description = $"Boost your health by {healthBoost} points";
-        asciiArt = "          /\"*._         _\r\n      .-*'`    `*-.._.-'/\r\n    < * ))     ,       ( \r\n      `*-._`._(__.--*\"`.\\";
-        //shows a fish
+        base.Awake();
+        name = "Cod";
+        healthBoost = 15;
     }
 }

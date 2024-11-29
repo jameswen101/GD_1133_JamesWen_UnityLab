@@ -3,37 +3,34 @@ using UnityEngine;
 
 public class Taser : Item
 {
-
-    public Taser()
+    //Goal: attach taser to user
+    protected override void Awake()
     {
-        asciiArt = "                                                                                                    \r\n                                                                                                    \r\n                                          ..:=+****=..    .... ..:.                                 \r\n                                        ..-##%%%%%%%:.  ..-:...:=-.                                 \r\n                                       .:+%###%%%%%#:...:=+:..-+=.....                              \r\n                                       .+%####%%%%%%*.=-+++:.=++=..:=.                              \r\n                                       =%######%%%=. .:=:-=-+-.+:.-+:.                              \r\n                                     .:%%#####%%%%+.  ...=++:.==:+++:.  ....                        \r\n                                     .%########%%%%-....:+-...++=:-=:..:#%%*.                       \r\n                                   ..#%########%%%%%+...::...:+=..---=%#%%%%%=.                     \r\n                                 ...*%###########%%%%%#-.....=........#%##%%%%-..                   \r\n                                 ..=#%#############%%%%%%%#=:......:*%%###%%%%#..                   \r\n                                 ..+%%%###############%%%%%%%%###%%%%#####%%%%#..                   \r\n                                 ..-#%%%%%%%##################%%##########%%%%*..                   \r\n                                 ....:+#%%%%%%%%%#######################%%%%%%:..                   \r\n                               ...:+**+%@@%%%%%%%%%#####################%%%%%-.                     \r\n                               ..:++*#%%%%%%@@@%%%%%%%%%%%############%%%%%%=..                     \r\n                               ..=+*#%%%%%%%%%%%@@@%%%%%%%%%%%########%%%%%+.                       \r\n                              ..=+**%%%%%%%%%%%%%%%@@@@%%%%%%%%%######%%%%*:.                       \r\n                              .-++*#%%%%%%%%%%%%%%%%%%%@@@@@%%%%%%%%%#%%%#-..                       \r\n                              .+**#%%%%%%%%%%%%%%%%%%%%%%%%@@@@@%%%%%%%%%=..                        \r\n                              ..-=#%%%%%%%%%%%%%%%%%%%%%%%%%%%%@@@+-+##*:...                        \r\n                               ..-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%+........                          \r\n                               ..=%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*..                                 \r\n                               .:#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#-..                                 \r\n                               .:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*...                                 \r\n                               .-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#:.                                   \r\n                               .=%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#..                                   \r\n                               .+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%=..                                   \r\n                            ...-*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%=:..                                  \r\n                            .-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%+.                                  \r\n                            .-#%############################%%%%+.                                  \r\n                            .-#%#############################%%%+.                                  \r\n                            .-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%+.                                  \r\n                            .:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%=..                                 \r\n                            ....+%@@@@@@@@@@@@@@@@@@@@@@@@@@@@....                                  \r\n                               .+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.                                     \r\n                            ..=*#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*+:.                                  \r\n                            .-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%+.                                  \r\n                            .-#%############################%%%%+.                                  \r\n                            .-#%#############################%%%+.                                  \r\n                            .-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%+.                                  \r\n                            ..*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#-..                                 \r\n                            ....+%%%%%%%%%%%%%%%%%%%%%%@@@@@@@....                                  \r\n                              ..+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%..                                    \r\n                            .:#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#=..                                 \r\n                            .-#%#############################%%%+.                                  \r\n                            .-#%############################%%%%+.                                  \r\n                            .-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#%%%+..                                 \r\n                            .:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%+.                                  \r\n                            ..=*#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*=...                                 \r\n                               .=%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.                                     \r\n                               ..=++++++++++++++++++++++++++=:                                      \r\n                                                                                                    \r\n                                                                                                    ";
+        base.Awake();
         description = "This is the most powerful item in the game. Use this to reduce the enemy's health by 50%, and then, you can roll at full strength and they can't roll for that turn.";
+        itemRarity = Rarity.Rare; // Initialize item rarity
     }
 
-    public override void useItem(User user, Enemy enemy)
+    public override void UseItem(User user, Enemy enemy)
     {
-        Debug.Log($"BUZZZZZZZZZ! \n{enemy.name} will be frozen for this turn and can't attack you!");
+        CRoom.TmpTextComponent1.text = $"<color=red>BUZZZZZZZZZ! \n{enemy.name} will be frozen for this turn and can't attack you!</color>";
+        CRoom.TmpTextComponent1.font = CRoom.DisplayFont;
+        CRoom.ShowEAText();
+        StartCoroutine(InvokeHideEAText(CRoom, 3f));
+
         enemy.health /= 2;
-        Debug.Log($"{enemy.name} hasn't recovered from the taser yet! Let's give the predator another heavy blow!");
+
+        CRoom.TmpTextComponent1.text = $"<color=red>{enemy.name} hasn't recovered from the taser yet! Let's give the predator another heavy blow!</color>";
+        CRoom.TmpTextComponent1.font = CRoom.DisplayFont;
+        CRoom.ShowEAText();
+        StartCoroutine(InvokeHideEAText(CRoom, 3f));
         foreach (DieRoller die in user.Dice)
         {
             if (die.numberOfSides == enemy.Dice[0].numberOfSides)
             {
-                die.Roll();
-                if (die.roll > die.numberOfSides / 2)
-                {
-                    Debug.Log($"{user.name} rolled a {die.numberOfSides} sided die for a result of {die.roll}. Above average");
-                }
-                else if (die.roll == die.numberOfSides / 2)
-                {
-                    Debug.Log($"{user.name} rolled a {die.numberOfSides} sided die for a result of {die.roll}. Average");
-                }
-                else
-                {
-                    Debug.Log($"{user.name} rolled a {die.numberOfSides} sided die for a result of {die.roll}. Below average");
-                }
-                enemy.health -= die.roll;
-                Debug.Log($"{user.health} vs {enemy.health}");
+                user.normalRoll(enemy);
+                enemy.IGH.OnHealthChange(enemy.health, enemy.Dice[0].numberOfSides);
+                user.EndOfTurn(enemy);
             }
         }
     }

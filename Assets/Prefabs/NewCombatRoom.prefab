@@ -1623,24 +1623,15 @@ MonoBehaviour:
   hasItem: 0
   hasMeat: 0
   hasEnemy: 0
-  userInRoom: 0
-  eagleInRoom: 0
-  alliInRoom: 0
-  wolfInRoom: 0
-  bearInRoom: 0
   row: 0
   col: 0
-  name: 
-  NorthDoorway: {fileID: 0}
-  EastDoorway: {fileID: 0}
-  SouthDoorway: {fileID: 0}
-  WestDoor: {fileID: 0}
-  row: 0
-  col: 0
-  eagleInRoom: 0
-  alliInRoom: 0
-  wolfInRoom: 0
-  bearInRoom: 0
+  north: {fileID: 0}
+  west: {fileID: 0}
+  south: {fileID: 0}
+  east: {fileID: 0}
+  roomNum: 0
+  Directions: []
+  enemies: []
 --- !u!1 &5510711713934173415
 GameObject:
   m_ObjectHideFlags: 0
