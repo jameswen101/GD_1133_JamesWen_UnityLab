@@ -1,14 +1,38 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class User : Player
 {
     public List<Item> ItemInventory = new List<Item>();
+    [HideInInspector]
     public bool noItems = true;
     public new List<DieRoller> Dice = new();
+    [HideInInspector]
+    public int maxHealth;
+    private CombatRoom CRoom;
+    public Material DefaultMaterial;
+    //add variables to store how many of each item does the user have?
 
-    public void exchangeAttack(Enemy enemy)
+    private void Start()
+    {
+        row = 0;
+        col = 0;
+        position = new Vector2(0, 0);
+    }
+
+    public int CalculateMaxHealth()
+    {
+        for (int i = 0; i < Dice.Count; i++)
+        {
+            maxHealth += Dice[i].numberOfSides;
+        }
+        return maxHealth;
+    }
+
+    public void exchangeAttack(Enemy enemy) //for choosing items, you can have items be chosen by clicking on a button that contains the items the user has
+        //But a new button has to be made every time the user gets an item?
     {
         bool rightChoice = false;
         if (!noItems)
@@ -53,8 +77,7 @@ public class User : Player
                 {
                     if (itemChoice.ToUpper() == ItemInventory[itemNum].itemName.ToUpper())
                     {
-                        Debug.Log(ItemInventory[itemNum].asciiArt);
-                        ItemInventory[itemNum].useItem(this, enemy);
+                        ItemInventory[itemNum].UseItem(this, enemy);
                         ItemInventory.RemoveAt(itemNum);
                         if (ItemInventory.Count == 0)
                         {
@@ -66,66 +89,81 @@ public class User : Player
             else
             {
                 normalRoll(enemy);
+                enemy.NormalRoll();
+                EndOfTurn(enemy);
             }
         }
         else
         {
             normalRoll(enemy);
+            enemy.NormalRoll();
+            EndOfTurn(enemy);
         }
     }
 
-    void normalRoll(Enemy enemy)
+    public void normalRoll(Enemy enemy)
     {
+        
         foreach (DieRoller die in Dice)
         {
             if (die.numberOfSides == enemy.Dice[0].numberOfSides)
             {
-                Debug.Log("__   _____  _   _ ____    _____ _   _ ____  _   _ \r\n\\ \\ / / _ \\| | | |  _ \\  |_   _| | | |  _ \\| \\ | |\r\n \\ V / | | | | | | |_) |   | | | | | | |_) |  \\| |\r\n  | || |_| | |_| |  _ <    | | | |_| |  _ <| |\\  |\r\n  |_| \\___/ \\___/|_| \\_\\   |_|  \\___/|_| \\_\\_| \\_|");
-                //YOUR TURN
-                die.Roll();
+                CRoom.TmpTextComponent1.text = "<color=red>YOUR TURN</color>";
+                CRoom.TmpTextComponent1.font = CRoom.DisplayFont;
+                CRoom.ShowEAText();
+                StartCoroutine(InvokeHideEAText(CRoom, 2f));
+                die.Roll(); //try visualizing it
                 if (die.roll > die.numberOfSides / 2)
                 {
-                    Debug.Log($"{name} rolled a {die.numberOfSides} sided die for a result of {die.roll}. Above average");
+                    CRoom.TmpTextComponent1.text = $"<color=red>{name} rolled a {die.numberOfSides} sided die for a result of {die.roll}. Above average</color>";
+                    CRoom.ShowEAText();
+                    StartCoroutine(InvokeHideEAText(CRoom, 5f));
                 }
                 else if (die.roll == die.numberOfSides / 2)
                 {
-                    Debug.Log($"{name} rolled a {die.numberOfSides} sided die for a result of {die.roll}. Average");
+                    CRoom.TmpTextComponent1.text = $"<color=red>{name} rolled a {die.numberOfSides} sided die for a result of {die.roll}. Average</color>";
+                    CRoom.ShowEAText();
+                    StartCoroutine(InvokeHideEAText(CRoom, 5f));
                 }
                 else
                 {
-                    Debug.Log($"{name} rolled a {die.numberOfSides} sided die for a result of {die.roll}. Below average");
+                    CRoom.TmpTextComponent1.text = $"<color=red>{name} rolled a {die.numberOfSides} sided die for a result of {die.roll}. Below average</color>";
+                    CRoom.ShowEAText();
+                    StartCoroutine(InvokeHideEAText(CRoom, 5f));
                 }
-                enemy.health -= die.roll;
-                Debug.Log(" _____ _   _ _____ __  ____   ___ ____    _____ _   _ ____  _   _ \r\n| ____| \\ | | ____|  \\/  \\ \\ / ( ) ___|  |_   _| | | |  _ \\| \\ | |\r\n|  _| |  \\| |  _| | |\\/| |\\ V /|/\\___ \\    | | | | | | |_) |  \\| |\r\n| |___| |\\  | |___| |  | | | |    ___) |   | | | |_| |  _ <| |\\  |\r\n|_____|_| \\_|_____|_|  |_| |_|   |____/    |_|  \\___/|_| \\_\\_| \\_|");
-                //ENEMY'S TURN
-                enemy.Dice[0].Roll();
-                if (enemy.Dice[0].roll > enemy.Dice[0].numberOfSides / 2)
-                {
-                    Debug.Log($"{enemy.name} rolled a {enemy.Dice[0].numberOfSides} sided die for a result of {enemy.Dice[0].roll}. Above average");
-                }
-                else if (die.roll == die.numberOfSides / 2)
-                {
-                    Debug.Log($"{enemy.name} rolled a {enemy.Dice[0].numberOfSides} sided die for a result of {enemy.Dice[0].roll}. Average");
-                }
-                else
-                {
-                    Debug.Log($"{enemy.name} rolled a {enemy.Dice[0].numberOfSides} sided die for a result of {enemy.Dice[0].roll}. Below average");
-                }
-                health -= enemy.Dice[0].roll;
-                Debug.Log($"{health} vs {enemy.health}");
-                if (enemy.health <= 0)
-                {
-                    enemy.enemyIsDead();
-                }
+                enemy.health -= die.roll; //show that in the health bar
+                IGH.OnHealthChange(enemy.health, enemy.Dice[0].numberOfSides);            
             }
+        }
+
+        
+    }
+
+    public void EndOfTurn(Enemy enemy)
+    {
+        CRoom.TmpTextComponent2.text = $"<color=red>{health} vs {enemy.health}</color>";
+        CRoom.ShowHealthText();
+        StartCoroutine(InvokeHideHealthText(CRoom, 2f));
+        if (enemy.health <= 0)
+        {
+            CRoom.EnemyIsDead(enemy);
         }
     }
 
+    private IEnumerator InvokeHideEAText(CombatRoom room, float delay) 
+    {
+        yield return new WaitForSeconds(delay);
+        room.HideEAText(); // Call the method on the CRoom instance
+    }
+
+    private IEnumerator InvokeHideHealthText(CombatRoom room, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        room.HideHealthText(); // Call the method on the CRoom instance
+    }
     public User(String name) : base(name)
     {
-        row = 0;
-        col = 0;
-        position = new Vector2(0, 0);
+        
         
     }
 }      

@@ -5,28 +5,51 @@ using Random = System.Random;
 
 public class DiningRoom : Room
 {
-    PorkRibs porkRibs;
-    Steak steak;
-    Drumstick drumstick;
-    Salmon salmon;
+    Ham Ham;
+    Steak Steak;
+    Drumstick Drumstick;
+    Cod Cod;
     public List<Meat> meats;
+    public Meat ActiveMeat;
 
-    public DiningRoom(int row, int col) : base(row, col)
+    private void Start()
     {
-        meats = new List<Meat> {porkRibs, steak,  drumstick, salmon};
-        this.row = row;
-        this.col = col;
-        this.name = $"room{row}-{col}";
+        meats = new List<Meat> {Drumstick, Ham, Cod, Steak};
         hasMeat = true;
+        ActivateRandomMeat();
+        ActiveMeat = ActivateRandomMeat();
     }
 
-    public void giveMeat()
+    public void GiveMeat()
+    {
+        TmpTextComponent1.text = $"<color=red>Congratulations! You have received the meat {ActiveMeat.meatName}! \nGood luck fighting off the apex predators!</color>";
+        ShowEAText();
+        //ShowIcon();
+        Invoke(nameof(HideEAText), 5f);
+        //HideIcon();
+        user.health += ActiveMeat.healthBoost;
+        TmpTextComponent2.text = $"<color=red>Your health is now {user.health}.</color>";
+        ShowHealthText();
+        //health may be more than the initial amount
+        Invoke(nameof(HideHealthText), 2f);
+    }
+
+    public Meat ActivateRandomMeat()
     {
         Random meatRandom = new Random();
         int meatNum = meatRandom.Next(0, meats.Count);
-        Debug.Log($"Congratulations! You have received the item {meats[meatNum].meatName}! \n {meats[meatNum].asciiArt} \n{meats[meatNum].description} \nGood luck fighting off the apex predators!");
-        user.health += meats[meatNum].healthBoost;
-        Debug.Log($"Your health is now {user.health}."); //health may be more than the initial amount
+        meats[meatNum].MeatObject.SetActive(true);
+        return meats[meatNum];
+    }
+    /*
+    private void ShowIcon()
+    {
+        ActivateRandomMeat().MeatIcon.SetActive(true);
     }
 
+    private void HideIcon()
+    {
+        ActivateRandomMeat().MeatIcon.SetActive(false);
+    }
+    */
 }

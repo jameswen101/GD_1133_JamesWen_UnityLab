@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b26ac9c2f71432f4db87a3c347d3abbf
+timeCreated: 1489913260
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 85896
+  packageName: Tombstone Mega Pack
+  packageVersion: 1.0
+  assetPath: Assets/Tombstone_Pack/Prefabs/coffin_01.prefab
+  uploadId: 172462

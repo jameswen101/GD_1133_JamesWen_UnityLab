@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System.Xml.Linq;
 using Random = System.Random;
 
@@ -18,19 +19,43 @@ public class GameManager : MonoBehaviour
 
     bool allEnemiesDefeated;
 
+    [SerializeField] private MainMenu MMenu;
+    [SerializeField] private PanelOpener POpen;
+    public GameObject inventoryPanel;
+
     private void Start()
     {
-        transform.position = Vector3.zero;
+        transform.position = new Vector3 (0, -2, 0);
         mMgrRef = Instantiate(mapMgr, transform);
         mMgrRef.setUpMap(mMgrRef.map);
         SpawnPlayer();
         PlayGame();
+        LoadMenu();
+        DisplayPanel();
+        // Ensure the inventory panel is inactive at the start
+        if (inventoryPanel != null)
+        {
+            inventoryPanel.SetActive(false);
+        }
+    }
+
+    private void Update()
+    {
+        // Check for the "I" key press
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            // Toggle the inventory panel's active state
+            if (inventoryPanel != null)
+            {
+                inventoryPanel.SetActive(!inventoryPanel.activeSelf);
+            }
+        }
     }
 
 
     User user; //declaring player object for user
 
-    Room currentRoom = new Room(0,0);
+    Room currentRoom = new Room();
 
     TreasureRoom tRoom;
     DiningRoom dRoom;
@@ -41,70 +66,24 @@ public class GameManager : MonoBehaviour
         Debug.Log("GameManager SpawnPlayer Begins");
         Room startingRoom = mMgrRef.roomsInMap[0];
         playerMove = Instantiate(userCapsule, transform);
-        Vector3 vector3 = new Vector3(startingRoom.row, 0, startingRoom.col);
+        Vector3 vector3 = new Vector3(startingRoom.row, -2, startingRoom.col);
         playerMove.transform.position = vector3;
     }
 
+    private void LoadMenu() 
+    {
+        MMenu.ButtonStartGame();
+    }
 
+    private void DisplayPanel()
+    {
+        POpen.OpenPanel();
+    }
 
     public void PlayGame()
     {
+           
         /*
-        //Game setup
-        Debug.Log("__        __   _                            _               \r\n\\ \\      / /__| | ___ ___  _ __ ___   ___  | |_ ___         \r\n \\ \\ /\\ / / _ \\ |/ __/ _ \\| '_ ` _ \\ / _ \\ | __/ _ \\        \r\n  \\ V  V /  __/ | (_| (_) | | | | | |  __/ | || (_) |       \r\n _ \\_/\\_/ \\___|_|\\___\\___/|_| |_| |_|\\___|  \\__\\___/  _     \r\n| | | |_   _ _ __ | |_(_)_ __   __ _  __      _(_) |_| |__  \r\n| |_| | | | | '_ \\| __| | '_ \\ / _` | \\ \\ /\\ / / | __| '_ \\ \r\n|  _  | |_| | | | | |_| | | | | (_| |  \\ V  V /| | |_| | | |\r\n|_|_|_|\\__,_|_| |_|\\__|_|_| |_|\\__, |   \\_/\\_/ |_|\\__|_| |_|\r\n|  _ \\(_) ___ ___| |           |___/                        \r\n| | | | |/ __/ _ \\ |                                        \r\n| |_| | | (_|  __/_|                                        \r\n|____/|_|\\___\\___(_)                                        ");
-        //Welcome to Hunting with Dice!
-        Debug.Log("__        ___           _   _                              \r\n\\ \\      / / |__   __ _| |_( )___   _   _  ___  _   _ _ __ \r\n \\ \\ /\\ / /| '_ \\ / _` | __|// __| | | | |/ _ \\| | | | '__|\r\n  \\ V  V / | | | | (_| | |_  \\__ \\ | |_| | (_) | |_| | |   \r\n   \\_/\\_/  |_| |_|\\__,_|\\__|_|___/  \\__, |\\___/ \\__,_|_|   \r\n _ __   __ _ _ __ ___   __|__ \\     |___/                  \r\n| '_ \\ / _` | '_ ` _ \\ / _ \\/ /                            \r\n| | | | (_| | | | | | |  __/_|                             \r\n|_| |_|\\__,_|_| |_| |_|\\___(_)                             ");
-        //What's your name?
-        String userName = " ";
-        userName = Console.ReadLine();
-       
-
-        //let user freely enter the die sizes they want + cpu uses the same dice
-        int number = 0;
-
-        Debug.Log("                                                                                               -%@@-\r\n                                                                                          ..*@@@@@@@\r\n                                                                                      .-#@@@@@@@#-..\r\n                                                                                ...=#@@@@@@@*-...   \r\n                                                                             .:+%@@@@@@@+:..        \r\n                    ........:...                                       ...-*@@@@@@@%=:..            \r\n                  ..=@@@@@@@@@@#.                                   .:+%@@@@@@@@*..                 \r\n                .-@@@@@@@@@@@@@@@+.                           ...-*@@@@@@@@@*.....                  \r\n               :@@@@@@@@@@@@@@@@@@#..                     ..:=%@@@@@@@@@@@+:.                       \r\n             .=@@@@@@@@@@@@@@@@@@@@@:........       ...:=#@@@@@@@@@@@@@*..                          \r\n            ..@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%.    ..#@@@@@@@@@@@@@@@@@#.                            \r\n            .#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@...*#@@@@@@@@@@@@@@@@@@#-..                            \r\n           .:@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%. .-@@@@@@@@@@@@@@@@@@@*.                               \r\n           .#@@@@@@@@@@@@@@@@@@@@@@@*.....#@#.%@@@@@@@#:=@@@@@@@@@@#.                               \r\n           ..*@@@@@@@@@@@@@@@@@@@@@@..  .@@@@@@@@@@@+%-:@@@@@@@@%=...                               \r\n            .:@@@@@@@@@@@@@@@@@@@@@@@...*@@@@@@@@@%@-+=+@@@@@@:.                                    \r\n          ..:@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#-:.:@@@@@@:.                                     \r\n        .:@@%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-. .#@@@@@#.                                      \r\n        .#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*...-@@@@@@=.                                      \r\n       ..%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-   -@@@@@@#.                                       \r\n      .=@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%:.=@@@@@+.:@@@@@@@-                                        \r\n     .*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@+  .:@@@@@@@@@@@@@@%.                                        \r\n  ..:#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*. .-@@@@@@@@@@@@@@@-                                         \r\n  .*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#:+:#@@@@@@@@@@@@@@@#.                                         \r\n .=@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-.                                         \r\n .%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#.                                         \r\n :@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@=.                                         \r\n.%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-.                                         \r\n-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@=.                                          \r\n=@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#.                                           \r\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@+..                                           \r\n=@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@:.                                             \r\n:@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*:                                               \r\n.@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#=:...                                                \r\n.@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%*+-..                                                         \r\n.@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*.                                                             \r\n.@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@=                                                             \r\n.%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@:                                                            \r\n.#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%..                                                          \r\n.+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%.                                                          ");
-        //show picture of a hunter
-        Debug.Log("You are a hunter who loves meat but has no money, and hunting is your only solution for feeding yourself. However, you will be facing four hungry apex predators that will attack you. \n But first, you will choose the size of the four dice that decide how much you and the predators can attack each other:");
-        for (int count = 0; count < 4; count++)
-        {
-            if (count == 0)
-            {
-                do
-                {
-                    Debug.Log("How many sides do you want in this die?");
-                    number = int.Parse(Console.ReadLine());
-                    if (number < 6)
-                    { //in the case of Dice[0], the only limit is that the # of sides must be 6+
-                        Debug.Log("Please enter a number not smaller than 6.");
-                    } //if code ends
-                } while (number < 6); //do-while loop code ends
-            }
-
-            else
-            {
-                do
-                {
-                    Debug.Log("How many sides do you want in this die?");
-                    number = int.Parse(Console.ReadLine());
-                    if (number < 6 || number <= user.Dice[count - 1].numberOfSides)
-                    { //the number of sides in this die must be larger than the last die
-                        Debug.Log("Please enter a number not smaller than 6 or your previous die."); //the size of each next die the user inputs must be larger than the last one
-                    } //if code ends
-                } while (number < 6 || number <= user.Dice[count - 1].numberOfSides); //do-while loop code ends
-            }
-            user.Dice.Add(new DieRoller(number)); //add die to user's dice list
-        } //for loop code ends
-
-        /*if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Debug.Log("Empty room searched");
-        }
-        */
-
-        //cRoom.addDiceHealth();
-        mapMgr.setUpMap(mapMgr.map);
-      
-
         //Game officially begins here
         if (cRoom.enemies[0].health <= 0 && cRoom.enemies[1].health <= 0 && cRoom.enemies[2].health <= 0 && cRoom.enemies[3].health <= 0)
         {
@@ -115,6 +94,7 @@ public class GameManager : MonoBehaviour
         {
             allEnemiesDefeated = false;
         }
+        */
         while (user.health > 0 && !allEnemiesDefeated)
         {
             /*

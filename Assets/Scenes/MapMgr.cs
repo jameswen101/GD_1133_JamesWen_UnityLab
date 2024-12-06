@@ -11,6 +11,9 @@ public class MapMgr : MonoBehaviour
     [SerializeField] float roomSize = 3;
     [SerializeField] Dictionary<Room, Vector2> roomDir = new Dictionary<Room, Vector2>(); //stores a list that holds the 4 types of rooms
     [SerializeField] public List<Room> roomsInMap = new List<Room>();
+    TreasureRoom TRoom;
+    DiningRoom DRoom;
+    CombatRoom CRoom;
     Vector3 offset = new Vector3(0.01f, 0, 0.01f); // Small offset to avoid z-fighting
 
     //add the 4 types of rooms into the list
@@ -22,6 +25,8 @@ public class MapMgr : MonoBehaviour
     {
         // var mapRoomRepresenation = GameObject.CreatePrimitive(PrimitiveType.Cube);
         // mapRoomRepresenation.transform.position = new Vector3(x,0,z);
+        Debug.Log($"The number of rows in the map is {map.GetLength(0)}");
+        Debug.Log($"The number of columns in the map is {map.GetLength(1)}");
         for (int row = 0; row < map.GetLength(0); row++)
         {
             for (int col = 0; col < map.GetLength(1); col++)
@@ -38,6 +43,8 @@ public class MapMgr : MonoBehaviour
                     tRoomRepresentation.transform.position = new Vector3(row * roomSize, 0, col * roomSize) + offset;
                     roomDir.Add(tRoomRepresentation, coords);
                     roomsInMap.Add(tRoomRepresentation);
+                    tRoomRepresentation.row = row;
+                    tRoomRepresentation.col = col;
                     Debug.Log($"Treasure room made at ({row}, {col})");
                 }
                 else if (isDiningRoom) //for (0,4), (4,0), (2,4), and (4,2)
@@ -46,6 +53,8 @@ public class MapMgr : MonoBehaviour
                     dRoomRepresentation.transform.position = new Vector3(row * roomSize, 0, col * roomSize) + offset;
                     roomDir.Add(dRoomRepresentation, coords);
                     roomsInMap.Add(dRoomRepresentation);
+                    dRoomRepresentation.row = row;
+                    dRoomRepresentation.col = col;
                     Debug.Log($"Dining room made at ({row}, {col})");
                 }
                 else if (isCombatRoom) //doubles excluding (0,0)
@@ -54,7 +63,10 @@ public class MapMgr : MonoBehaviour
                     cRoomRepresentation.transform.position = new Vector3(row * roomSize, 0, col * roomSize) + offset;
                     roomDir.Add(cRoomRepresentation, coords);
                     roomsInMap.Add(cRoomRepresentation);
+                    cRoomRepresentation.row = row;
+                    cRoomRepresentation.col = col;
                     Debug.Log($"Combat room made at ({row}, {col})");
+                    //Should I activate the combat room's respective enemy object here? Otherwise, enemies can wait till the user enters the room to be activated
                 }
                 else
                 {
@@ -62,6 +74,8 @@ public class MapMgr : MonoBehaviour
                     nRoomRepresentation.transform.position = new Vector3(row * roomSize, 0, col * roomSize) + offset;
                     roomDir.Add(nRoomRepresentation, coords);
                     roomsInMap.Add(nRoomRepresentation);
+                    nRoomRepresentation.row = row;
+                    nRoomRepresentation.col = col;
                     Debug.Log($"Normal room made at ({row}, {col})");
                 }
 
@@ -69,4 +83,28 @@ public class MapMgr : MonoBehaviour
         }
 
     }
+
+    public void AddEnemiesToMap()
+    {
+        /*
+                    if (row == 1 && col == 1)
+                    {
+                        CRoom.enemies[0].PredatorObject.SetActive(true);
+                    }
+                    else if (row == 2 && col == 2)
+                    {
+                        CRoom.enemies[1].PredatorObject.SetActive(true);
+                    }
+                    else if (row == 3 && col == 3)
+                    {
+                        CRoom.enemies[2].PredatorObject.SetActive(true);
+                    }
+                    else if (row == 4 && col == 4)
+                    {
+                        CRoom.enemies[3].PredatorObject.SetActive(true);
+                    }
+                    */
+    }
+
+
 }

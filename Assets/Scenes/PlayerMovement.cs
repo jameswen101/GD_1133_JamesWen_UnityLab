@@ -7,7 +7,10 @@ public class PlayerMovement : MonoBehaviour
     public float horizontalInput, verticalInput;
     public float turnSpeed = 10f;
     public float moveSpeed = 10f;
-    Room currentRoom;
+    public Room currentRoom;
+    public CombatRoom currentCRoom;
+    public TreasureRoom currentTRoom;
+    public DiningRoom currentDRoom;
 
     private Dictionary<Direction, int> _rotationByDirection = new()
     {
@@ -187,19 +190,65 @@ public class PlayerMovement : MonoBehaviour
         isRotating = true;
     }
     //End of rotation code
-    /*
-        private void OnTriggerEnter(Collider otherObject) //how does the system know which one is enter and which one is exit?
+    
+        private void OnTriggerEnter(Collider otherObject) //how can we accomodate this for diff types of rooms?
+        {
+            if (otherObject.CompareTag("NormalRoom"))
         {
             currentRoom = otherObject.GetComponent<Room>();
-            currentRoom.OnRoomEntered();
+            currentRoom.OnRoomEntered(); 
             Debug.Log("Room entered");
         }
+            else if (otherObject.CompareTag("CombatRoom"))
+        {
+            currentCRoom = otherObject.GetComponent<CombatRoom>();
+            currentCRoom.OnRoomEntered();
+            Debug.Log("Combat room entered");
+        }
+            else if (otherObject.CompareTag("DiningRoom"))
+        {
+            currentDRoom = otherObject.GetComponent<DiningRoom>();
+            currentDRoom.OnRoomEntered();
+            Debug.Log("Dining room entered");
+        }
+            else if (otherObject.CompareTag("TreasureRoom"))
+        {
+            currentTRoom = otherObject.GetComponent<TreasureRoom>();
+            currentTRoom.OnRoomEntered();
+            Debug.Log("Treasure room entered");
+        }
+    }
 
         private void OnTriggerExit(Collider otherObject)
+    {
+        if (otherObject.CompareTag("NormalRoom"))
         {
             Room exitingRoom = otherObject.GetComponent<Room>();
             exitingRoom.OnRoomExit();
             Debug.Log("Room exited");
+            currentRoom = null;
         }
-    */
+        else if (otherObject.CompareTag("CombatRoom"))
+        {
+            Room exitingCRoom = otherObject.GetComponent<CombatRoom>();
+            exitingCRoom.OnRoomExit();
+            Debug.Log("Combat room exited");
+            currentCRoom = null;
+        }
+        else if (otherObject.CompareTag("DiningRoom"))
+        {
+            Room exitingDRoom = otherObject.GetComponent<DiningRoom>();
+            exitingDRoom.OnRoomExit();
+            Debug.Log("Dining room exited");
+            currentDRoom = null;
+        }
+        else if (otherObject.CompareTag("TreasureRoom"))
+        {
+            Room exitingTRoom = otherObject.GetComponent<TreasureRoom>();
+            exitingTRoom.OnRoomExit();
+            Debug.Log("Treasure room exited");
+            currentTRoom = null;
+        }
+    }
+    
 }
